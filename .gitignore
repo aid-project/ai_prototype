@@ -1,11 +1,11 @@
 # public으로 깃을 전환할때는 settings.py도 gitignore추가해야할 것 같습니다.
-media/images/*
 !media/drop.png
 !media/drop1.png
 !media/drop2.png
 !media/drop3.png
 !media/drop4.png
-
+media/images/drawing/*
+media/files/features.npy
 AIServer/settings.py
 
 # 아래부터 .gitignore plugin으로 작성한 내용
