@@ -13,12 +13,12 @@ from .models import Drawing, Pictogram
 
 
 class DrawingSerializer(serializers.ModelSerializer):
-    drawing_url = serializers.CharField()
+    drawing_uri = serializers.CharField()
 #    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Drawing
-        fields = ['drawing_url']
+        fields = ['drawing_uri']
 
 
 # class DrawingTagSerializer(serializers.ModelSerializer):

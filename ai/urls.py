@@ -9,7 +9,7 @@ from django.urls import path, include
 from ai import views
 
 urlpatterns = [
-    path('pictograms/', views.pictogram_list),  # 픽토그램 생성 api
+    path('pictograms', views.pictogram_list),  # 픽토그램 생성 api
     #path('tags/', views.tag_list),
     path('hello/', views.hello)
     # path('tags/<str:name>', views.tag_detail)

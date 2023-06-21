@@ -31,12 +31,13 @@ def pictogram_list(request):
     if request.method == 'POST':
         # 그림 저장
         drawing_uri = request.data.get('drawing_uri')
-        tags = request.data.getlist('tags')
-        if not tags:
-            return Response({
-                "data": None,
-                "error": "tags not found"
-            }, status=status.HTTP_400_BAD_REQUEST)
+        #tags = request.data.getlist('tags')
+        tags = []
+        # if not tags:
+        #     return Response({
+        #         "data": None,
+        #         "error": "tags not found"
+        #     }, status=status.HTTP_400_BAD_REQUEST)
         if drawing_uri:
             try:
                 drawing_path = save_drawing_tags(request)
@@ -48,6 +49,7 @@ def pictogram_list(request):
                 response_data = Parser.pictograms_uploader_to_response(pictogram_uris)
                 return Response(response_data, status=status.HTTP_201_CREATED)
             except Exception as e:
+                print(str(e))
                 return Response({
                     "data": None,
                     "error": str(e)
@@ -64,7 +66,7 @@ def pictogram_list(request):
 
 def save_drawing_tags(request):
     """
-    drawing_url을 받은걸 s3에 get요청을 하여
+    drawing_uri을 받은걸 s3에 get요청을 하여
     로컬 media 디렉토리에 저장
     무결성(url인지) 확인 후 Drawing instance리턴
     """
@@ -76,7 +78,7 @@ def save_drawing_tags(request):
     #drawing_path = settings.MEDIA_ROOT + 'test_image.jpeg' # test
     drawing_serializer = DrawingSerializer( # 프로토타입에서는 사용안할확률이 높지만, 혹시나 모델로 저장
         data={
-            'drawing_url': drawing_uri,  # 22WD-2RS...png
+            'drawing_uri': drawing_uri,  # 22WD-2RS...png
         }
     )
     if not drawing_serializer.is_valid():

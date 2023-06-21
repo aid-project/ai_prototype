@@ -16,7 +16,7 @@ from django.db import models
 
 
 class Drawing(models.Model):
-    drawing_url = models.CharField(max_length=100)
+    drawing_uri = models.CharField(max_length=100)
 #    tags = models.ManyToManyField(Tag)
 
 

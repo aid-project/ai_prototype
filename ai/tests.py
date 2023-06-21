@@ -50,10 +50,10 @@ class AiApiTest(APITestCase):
         """
             post를 날려 직접 테스트하는것.
         """
-        drawing_url = 'test_image.jpg'
+        drawing_uri = 'test_image.jpg'
         tags = [{'name': 'drop'}, {'name': 'water'}]
         data = {
-            'drawing_url': drawing_url,
+            'drawing_uri': drawing_uri,
             'tags': tags
         }
 

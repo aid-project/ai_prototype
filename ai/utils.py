@@ -39,6 +39,7 @@ class PictogramGenerator:
         # expected return : ["~~.png", "~~.png",...]? 정해지면 구현
         """
         start = time.time()
+        
         drawing_features = self.extract_features(image)
         
         similarities = []
@@ -114,7 +115,7 @@ class Parser:
             },
             'error': None
         }
-        return json.dumps(response_data)
+        return response_data
 
     @staticmethod
     def pictograms_ai_to_uploader(pictograms):
@@ -142,7 +143,8 @@ class S3ImgUploader:
         s3_client.upload_file(
             self.file,
             settings.AWS_STORAGE_BUCKET_NAME,
-            url
+            url,
+            ExtraArgs={'ContentType': "image/jpeg"}
         )
         return url
 
