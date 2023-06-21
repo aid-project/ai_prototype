@@ -49,20 +49,23 @@ class PictogramGenerator:
         
         top_indices = np.argsort(np.array(similarities).flatten())[::-1][:5]
         
+        top = []
+        
         for index in top_indices:
+            top.append(images_files[index])
             print(images_files[index])
             pass
-        
+
         end = time.time()
         
         print("time : " + str(end - start))
         
         paths = [  # 테스트용 픽토그램 리턴값. 구현되면 지울것
-            'pictogram1.png',
-            'pictogram2.png',
-            'pictogram3.png',
-            'pictogram4.png',
-            'pictogram5.png'
+            top[0],
+            top[1],
+            top[2],
+            top[3],
+            top[4]
         ]
         return paths
 
