@@ -45,7 +45,7 @@ def pictogram_list(request):
                 # pictograms : ['pictogram1.png', 'pictogram2.png', ...]
                 pictograms = Parser.pictograms_ai_to_uploader(pictograms)
                 pictogram_urls = upload_pictograms(pictograms)  # return [uuid.png, uuid.png ...]
-                response_data = Parser.pictograms_uploader_to_response(pictograms)
+                response_data = Parser.pictograms_uploader_to_response(pictogram_urls)
                 return Response(response_data, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({
