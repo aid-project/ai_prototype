@@ -25,18 +25,16 @@ class AiTest(APITestCase):
     """
 
     def test_generate_pictograms(self):
-        image_name = 'drawn.jpg'
+        """
+        utils.py의 generate_pictogram을 test
+        """
+        image_path = settings.MEDIA_DRAWING + 'drawn.jpg'
+        tags = ['water', 'drop']
 
-        drawing_serializer = DrawingSerializer(
-            data={'drawing_url': settings.MEDIA_ROOT + 'drawn.jpg',
-                  'tags': [{"name": "water"}, {"name": "drop"}]})
-        if drawing_serializer.is_valid():
-            test_instance = drawing_serializer.save()
-        else:
-            test_instance = None
-        pictograms = views.generate_pictograms(drawing_instance=test_instance)
+        generator = PictogramGenerator()
+        pictograms = generator.generate_pictogram(image_path, tags)
         for pictogram in pictograms:
-            self.assertTrue(os.path.exists(pictogram))
+            self.assertTrue(os.path.exists(settings.MEDIA_PICTOGRAM + pictogram))
         print(pictograms)
 
     def tearDown(self):

@@ -92,7 +92,8 @@ def generate_pictograms(drawing_path, tags):
     input : drawing_instance
     ai에게 픽토그램 요청
     """
-    pictograms = PictogramGenerator().generate_pictogram(
+    generator = PictogramGenerator()
+    pictograms = generator.generate_pictogram(
         drawing_path,
         Parser.tags_request_to_ai(tags)
     )
