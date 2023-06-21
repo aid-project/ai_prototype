@@ -6,7 +6,7 @@ import os.path
 from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes, action
-from rest_framework.parsers import JSONParser, MultiPartParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from .utils import PictogramGenerator, Parser, S3ImgUploader, S3ImgDownloader
 from ai.models import Drawing, Pictogram
@@ -20,32 +20,32 @@ from ai.serializers import DrawingSerializer
 
 
 @api_view(http_method_names=['POST'])
-@parser_classes([MultiPartParser, JSONParser])
+@parser_classes([FormParser, JSONParser,MultiPartParser])
 def pictogram_list(request):
     """
     POST:(expected)
-        pictogram_url : c672cf20-a818-4500-b880-e7d85ccf993a.png
+        pictogram_uri : c672cf20-a818-4500-b880-e7d85ccf993a.png
         tags : ["name": "tag1", ...]
         return [{"pictogram_data" : "픽토그램 데이터"}, {"pictogram_data" : "픽토그램 데이터"}]
     """
     if request.method == 'POST':
         # 그림 저장
-        drawing_url = request.data.get('drawing_url')
-        tags = request.data.get('tags', [])
+        drawing_uri = request.data.get('drawing_uri')
+        tags = request.data.getlist('tags')
         if not tags:
             return Response({
                 "data": None,
                 "error": "tags not found"
             }, status=status.HTTP_400_BAD_REQUEST)
-        if drawing_url:
+        if drawing_uri:
             try:
                 drawing_path = save_drawing_tags(request)
                 # drawing_path: '~/media/images/drawing/~.png'
                 pictograms = generate_pictograms(drawing_path, tags)
                 # pictograms : ['pictogram1.png', 'pictogram2.png', ...]
                 pictograms = Parser.pictograms_ai_to_uploader(pictograms)
-                pictogram_urls = upload_pictograms(pictograms)  # return [uuid.png, uuid.png ...]
-                response_data = Parser.pictograms_uploader_to_response(pictogram_urls)
+                pictogram_uris = upload_pictograms(pictograms)  # return [uuid.png, uuid.png ...]
+                response_data = Parser.pictograms_uploader_to_response(pictogram_uris)
                 return Response(response_data, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({
@@ -55,7 +55,7 @@ def pictogram_list(request):
         else:
             return Response({
                 "data": None,
-                "error": "drawing url not found"}, status=status.HTTP_400_BAD_REQUEST)
+                "error": "drawing uri not found"}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({
             "data": None,
@@ -68,15 +68,15 @@ def save_drawing_tags(request):
     로컬 media 디렉토리에 저장
     무결성(url인지) 확인 후 Drawing instance리턴
     """
-    drawing_url = request.data.get('drawing_url')
+    drawing_uri = request.data.get('drawing_uri')
 
     img_downloader = S3ImgDownloader('png')
 
-    drawing_path = img_downloader.download(drawing_url)
+    drawing_path = img_downloader.download(drawing_uri)
     #drawing_path = settings.MEDIA_ROOT + 'test_image.jpeg' # test
     drawing_serializer = DrawingSerializer( # 프로토타입에서는 사용안할확률이 높지만, 혹시나 모델로 저장
         data={
-            'drawing_url': drawing_url,  # 22WD-2RS...png
+            'drawing_url': drawing_uri,  # 22WD-2RS...png
         }
     )
     if not drawing_serializer.is_valid():

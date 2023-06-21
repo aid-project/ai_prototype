@@ -32,6 +32,7 @@ class PictogramGenerator:
         return features.flatten()  # 1차원 벡터로 변환
 
     def generate_pictogram(self, image: str, tags_id: list):
+        print("start")
         """
         # image : "media/drawing/04818-18464...-854.png"
         # tags : list[tag1, tag2, ...]
@@ -93,10 +94,7 @@ class Parser:
         ai측이 원하는 데이터로 리턴
         tags = ["water", "drop"]
         """
-        lst = []
-        for item in tags:
-            lst.append(item['name'])
-        return lst
+        return tags
 
     @staticmethod
     def pictograms_uploader_to_response(pictogram_urls):
@@ -105,12 +103,15 @@ class Parser:
 
         """
         response_data = {
-            'data':
-                [{'pictogram_url': pictogram_urls[0]},
-                 {'pictogram_url': pictogram_urls[1]},
-                 {'pictogram_url': pictogram_urls[2]},
-                 {'pictogram_url': pictogram_urls[3]},
-                 {'pictogram_url': pictogram_urls[4]}, ],
+            'data':{
+                "pictogram_uri":[
+                    pictogram_urls[0],
+                    pictogram_urls[1],
+                    pictogram_urls[2],
+                    pictogram_urls[3],
+                    pictogram_urls[4],
+                ]
+            },
             'error': None
         }
         return json.dumps(response_data)
