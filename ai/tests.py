@@ -1,51 +1,33 @@
 """
 lastest date : 6.8
 s3 관련 추가
+
+python manage.py test {django_app}.{test}.{file_name}.{class_name}.{func_name}
+ex) python manage.py test ai.tests.ApiTest.test_hello
 """
 import json
 import csv
-import os.path
 
 from rest_framework.test import APITestCase
-from django.core.files import File
 from rest_framework import status
 from django.conf import settings
 
-from . import views
-from .models import Drawing, Pictogram
-from .serializers import DrawingSerializer
-from .utils import S3ImgDownloader, S3ImgUploader, PictogramGenerator, Parser
+from ai import views
+from ai.models import Drawing, Pictogram
+from ai.utils import S3ImgDownloader, S3ImgUploader, PictogramGenerator, Parser
 
-
-# Create your tests here.
-class AiTest(APITestCase):
-    """
-    views에 post, get 요청등이 없는 테스트들의 모음
-    ai테스트는 여기 작성하면 될 것 같습니다!
-    """
-
-    def test_generate_pictograms(self):
-        """
-        utils.py의 generate_pictogram을 test
-        """
-        image_path = settings.MEDIA_DRAWING + 'drawn.jpg'
-        tags = ['water', 'drop']
-
-        generator = PictogramGenerator()
-        pictograms = generator.generate_pictogram(image_path, tags)
-        for pictogram in pictograms:
-            self.assertTrue(os.path.exists(settings.MEDIA_PICTOGRAM + pictogram))
-        print(pictograms)
-
-    def tearDown(self):
-        Drawing.objects.all().delete()
-
-
-class AiApiTest(APITestCase):
+class ApiTest(APITestCase):
     """
     get, post요청이 있는 테스트들의 모음
     """
     # 해당 코드는 post로 drawing과 tag, drawingtag를 요청에 따라 생성
+    def test_hello(self):
+        """
+        테스트용 api인 hello를 get형식으로 request를 보내고, HELLO!를 data로 받는다.
+        """
+        response = self.client.get('/api/hello/')
+        self.assertEqual(200, response.status_code, "api/hello status 확인")
+
     def test_post_pictograms(self):
         """
             post를 날려 직접 테스트하는것.
@@ -101,10 +83,10 @@ class S3Test(APITestCase):
         """
         url = 'https://' + settings.AWS_S3_CUSTOM_DOMAIN + '/test_image.jpg'
         s3_png = S3ImgDownloader('png')
-        media_url = s3_png.download(url)
+        media_url = s3_png.download_in_local(url)
         self.assertTrue('test_image.png' in media_url)
         s3_jpeg = S3ImgDownloader()
-        media_url = s3_jpeg.download(url)
+        media_url = s3_jpeg.download_in_local(url)
         self.assertTrue('test_image.jpeg' in media_url)
 
     def test_upload(self):
@@ -121,10 +103,6 @@ class djangoTest(APITestCase):
     assert문이 없는 경우에 여기에 작성하였습니다.
     """
 
-    def test_hello(self):
-        response = self.client.get('/hello', content_type='application/json')
-        print(response)
-        print(type(response))
 
     def test_path_check(self):
         print(settings.MEDIA_ROOT)
@@ -155,4 +133,5 @@ class UtilTest(APITestCase):
         file_name = 'test.jpg'
         # when
         views.delete_files(settings.MEDIA_DRAWING + file_name)
+
 

@@ -4,6 +4,7 @@ S3ImgDownloader - init방식은 고정이나, 포맷 방식을 jpeg로 고정.
                 - download()메소드를 메모리에저장하는 메소드와, media폴더에 저장하는 메소드 분할.
 s3 사용하게 수정
 """
+import io
 import json
 import uuid
 import boto3
@@ -26,8 +27,11 @@ from ai.__init__ import model, features_array, images_files
 
 class PictogramGenerator:
 
-    def extract_features(self, image_path):
-        img = load_img(image_path)  # 이미지 로드
+    def extract_features(self, image_bytes : bytes):
+        img = Image.open(io.BytesIO(image_bytes))
+        img = img.convert('RGB')
+        # img = img.resize(target_size, Image.NEAREST) target size만큼 resize?
+        # img = load_img(image_path)  # 이미지 로드
         img = img_to_array(img)  # 이미지를 배열로 변환
         img = np.expand_dims(img, axis=0)  # 배치 차원 추가
         img = preprocess_input(img)  # 이미지 전처리
@@ -131,7 +135,6 @@ class Parser:
 class S3ImgUploader:
     """
     init에 media에 있는 파일명을 인자로 받았을때, 해당 media의 pictogram파일을 업로드.
-    todo : 나중에 다른 모델을 구상하고, 직접 그려내는 방식으로 AI를 구성할 때 다른 방식의 메소드 필요.
     """
     def __init__(self, file: str):  # test.jpg, test.png
         self.file = settings.MEDIA_PICTOGRAM + file  # self.file = ~/media/images/pictogram

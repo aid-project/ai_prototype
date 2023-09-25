@@ -20,7 +20,7 @@ from ai.serializers import DrawingSerializer
 
 
 @api_view(http_method_names=['POST'])
-@parser_classes([FormParser, JSONParser,MultiPartParser])
+@parser_classes([FormParser, JSONParser, MultiPartParser])
 def pictogram_list(request):
     """
     POST:(expected)
@@ -40,9 +40,10 @@ def pictogram_list(request):
         #     }, status=status.HTTP_400_BAD_REQUEST)
         if drawing_uri:
             try:
-                drawing_path = save_drawing_tags(request)
+                drawing_bytes = save_drawing_in_memory(request)
+                # drawing_bytes: bytes타입의 drawing -> PIL을 이용하여 사용
                 # drawing_path: '~/media/images/drawing/~.png'
-                pictograms = generate_pictograms(drawing_path, tags)
+                pictograms = generate_pictograms(drawing_bytes, tags)
                 # pictograms : ['pictogram1.png', 'pictogram2.png', ...]
                 pictograms = Parser.pictograms_ai_to_uploader(pictograms)
                 pictogram_uris = upload_pictograms(pictograms)  # return [uuid.png, uuid.png ...]
@@ -64,11 +65,11 @@ def pictogram_list(request):
             "error": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-def save_drawing_tags(request):
+def save_drawing_in_local(request):
     """
     drawing_uri을 받은걸 s3에 get요청을 하여
     로컬 media 디렉토리에 저장
-    무결성(url인지) 확인 후 Drawing instance리턴
+    무결성(uri인지) 확인 후 Drawing instance리턴
     """
     drawing_uri = request.data.get('drawing_uri')
 
@@ -87,16 +88,37 @@ def save_drawing_tags(request):
     drawing_serializer.save()
     return drawing_path
 
+def save_drawing_in_memory(request):
+        """
+        drawing_uri을 받은걸 s3에 get요청을 하여
+        로컬 media 디렉토리에 저장
+        무결성(uri인지) 확인 후 Drawing instance리턴
+        """
+        drawing_uri = request.data.get('drawing_uri')
+        # drawing_path = settings.MEDIA_ROOT + 'test_image.jpeg' # test
+        drawing_serializer = DrawingSerializer(  # Serializer로 확인 후 S3에 값을 가져옴.
+            data={
+                'drawing_uri': drawing_uri,  # 22WD-2RS...png
+            }
+        )
+        if not drawing_serializer.is_valid():
+            print(drawing_serializer.errors)
+            raise Exception(drawing_serializer.errors)
+        drawing_serializer.save()
+        img_downloader = S3ImgDownloader('png')
+        drawing_bytes = img_downloader.download_in_memory(drawing_uri)
+        return drawing_bytes
+
 
 # ai에게 픽토그램 생성 요청
-def generate_pictograms(drawing_path, tags):
+def generate_pictograms(drawing_bytes: bytes, tags):
     """
     input : drawing_instance
     ai에게 픽토그램 요청
     """
     generator = PictogramGenerator()
     pictograms = generator.generate_pictogram(
-        drawing_path,
+        drawing_bytes,
         Parser.tags_request_to_ai(tags)
     )
     return pictograms
@@ -132,7 +154,7 @@ def delete_files(path):
 
 @api_view(['GET'])
 def hello(request):
-    # 연결 테스트용 api '/hello/'
+    # 연결 테스트용 api 'api/hello/'
     print('hello world! from request!')
     data = {
         "data": "HELLO!",
