@@ -1,5 +1,5 @@
 """
-date : 6.19
+date : 11.04
 """
 import os.path
 
@@ -65,33 +65,33 @@ def pictogram_list(request):
             "error": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-def save_drawing_in_local(request):
-    """
-    drawing_uri을 받은걸 s3에 get요청을 하여
-    로컬 media 디렉토리에 저장
-    무결성(uri인지) 확인 후 Drawing instance리턴
-    """
-    drawing_uri = request.data.get('drawing_uri')
-
-    img_downloader = S3ImgDownloader('png')
-
-    drawing_path = img_downloader.download(drawing_uri)
-    #drawing_path = settings.MEDIA_ROOT + 'test_image.jpeg' # test
-    drawing_serializer = DrawingSerializer( # 프로토타입에서는 사용안할확률이 높지만, 혹시나 모델로 저장
-        data={
-            'drawing_uri': drawing_uri,  # 22WD-2RS...png
-        }
-    )
-    if not drawing_serializer.is_valid():
-        print(drawing_serializer.errors)
-        raise Exception(drawing_serializer.errors)
-    drawing_serializer.save()
-    return drawing_path
+# def save_drawing_in_local(request):
+#     """
+#     drawing_uri을 받은걸 s3에 get요청을 하여
+#     로컬 media 디렉토리에 저장
+#     무결성(uri인지) 확인 후 Drawing instance리턴
+#     """
+#     drawing_uri = request.data.get('drawing_uri')
+#
+#     img_downloader = S3ImgDownloader('png')
+#
+#     drawing_path = img_downloader.download(drawing_uri)
+#     #drawing_path = settings.MEDIA_ROOT + 'test_image.jpeg' # test
+#     drawing_serializer = DrawingSerializer( # 프로토타입에서는 사용안할확률이 높지만, 혹시나 모델로 저장
+#         data={
+#             'drawing_uri': drawing_uri,  # 22WD-2RS...png
+#         }
+#     )
+#     if not drawing_serializer.is_valid():
+#         print(drawing_serializer.errors)
+#         raise Exception(drawing_serializer.errors)
+#     drawing_serializer.save()
+#     return drawing_path
 
 def save_drawing_in_memory(request):
         """
         drawing_uri을 받은걸 s3에 get요청을 하여
-        로컬 media 디렉토리에 저장
+        memory에 drawing_bytes 변수에 bytes 타입으로 저장
         무결성(uri인지) 확인 후 Drawing instance리턴
         """
         drawing_uri = request.data.get('drawing_uri')
@@ -140,16 +140,16 @@ def upload_pictograms(pictograms):
     return pictogram_urls
 
 
-def delete_files(path):
-    """
-    window기준으로 권한 에러 발생
-    혹시나의 보안을 위해 따로 설정은 안하고 나중에 확인
-    배열안에 있는 파일 삭제
-    input : [path1, path2, ...]
-    """
-    for file in path:
-        if os.path.exists(file):
-            os.remove(file)
+# def delete_files(path):
+#     """
+#     window기준으로 권한 에러 발생
+#     혹시나의 보안을 위해 따로 설정은 안하고 나중에 확인
+#     배열안에 있는 파일 삭제
+#     input : [path1, path2, ...]
+#     """
+#     for file in path:
+#         if os.path.exists(file):
+#             os.remove(file)
 
 
 @api_view(['GET'])

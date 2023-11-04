@@ -38,7 +38,7 @@ class PictogramGenerator:
         features = model.predict(img)  # 특성 추출
         return features.flatten()  # 1차원 벡터로 변환
 
-    def generate_pictogram(self, image: str, tags_id: list):
+    def generate_pictogram(self, image: bytes, tags_id: list):
         print("start")
         """
         # image : byte file
@@ -188,11 +188,10 @@ class S3ImgDownloader:
     def download_in_memory(self, uri: str):
         """
         media에 저장하지 않고, 메모리에 저장.
-        todo : keras의 load_image()는 요구 인자가 path인자 다른  방법이 존재하는가? 확인해보고 수정필요.
         # path = settings.MEDIA_DRAWING + url
         """
         uri = 'https://' + settings.AWS_S3_CUSTOM_DOMAIN + '/' + uri
         response = requests.get(uri)
         image_content = response.content
-        image = Image.open(BytesIO(image_content))
-        return image  # 일단 PIL의 이미지 객체를 주는걸로 설정
+        # image = Image.open(BytesIO(image_content))
+        return image_content # PIL의 이미지 객체를 주는걸로 설정
