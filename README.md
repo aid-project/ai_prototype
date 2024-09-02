@@ -1,7 +1,6 @@
 # AId-AIServer
 # 주의사항
-private key들이 담겨있는 setting.py가 여기 Repo에 없으므로 사용할거면 요청하셔야합니다.
-나중에 통합시 확인하고 public으로 교체할 것.
+private key들이 담겨있는 setting.py가 여기 Repo에 없음.
 ## requirements.txt(동일한 환경) 사용하기:
 ### virtualenv 설치
 pip install virtualenv
